@@ -3,7 +3,7 @@
 using namespace std;
 struct LNode {
 	LNode *next;
-	int data;
+	char data;
 };
 class LStack {
 	LNode *head;
@@ -13,9 +13,10 @@ public:
 		head->next = NULL;
 	}
 	int is_empty();
-	void push(int);
-	int pop();
+	void push(char);
+	char pop();
 	void show_data();
+	char get_value();
 };
 int LStack::is_empty() {
 	if (head->next == NULL) {
@@ -25,20 +26,21 @@ int LStack::is_empty() {
 		return -1;
 	}
 }
-void LStack::push(int x) {
+void LStack::push(char x) {
 	LNode *p = new LNode;
 	p->next = head->next;
 	p->data = x;
 	head->next = p;
 }
-int LStack::pop() {
+char LStack::pop() {
 	if (head->next == NULL) {
-		return -1;
+		return '$';
 	}
 	LNode *p = head->next;
+	char ch = p->data;
 	head->next = p->next;
 	free(p);
-	return 1;
+	return ch;
 }
 void LStack::show_data() {
 	LNode *p = head->next;
@@ -52,5 +54,14 @@ void LStack::show_data() {
 		}
 		i++;
 		p = p->next;
+	}
+}
+char LStack::get_value() {
+	int isEmpty = is_empty();
+	if (isEmpty == -1) {
+		return head->next->data;
+	}
+	else {
+		return '$';
 	}
 }
