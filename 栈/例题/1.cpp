@@ -1,6 +1,4 @@
-## 判断一个表达式中的括号是否配对，表达式已经存入字符数组exp[]中,表达式中的字符个数为n;
-
-```
+// 判断一个表达式中的括号是否配对，表达式已经存入字符数组exp[]中,表达式中的字符个数为n
 #include "Lstack.h"
 #include "utils.h"
 #include <iostream>
@@ -33,4 +31,3 @@ int main()
 	LStack stack = LStack();
 	cout<<match(stack, test);
 }
-```
