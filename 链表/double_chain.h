@@ -12,7 +12,6 @@ public:
 	LinkNode* _next;
 public:
 	LinkNode() {
-		_value = 0;
 		_prev = nullptr;
 		_next = nullptr;
 	};
