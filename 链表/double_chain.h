@@ -1,5 +1,5 @@
 #pragma once
-// åŒå‘é“¾è¡¨
+// Ë«ÏòÁ´±í
 #ifndef _DOUBLECHAIN_H
 #define _DOUBLECHAIN_H
 #include <iostream>
@@ -28,20 +28,20 @@ public:
 	typedef LinkNode<T>* pointer;
 	DoubleLink();
 	~DoubleLink();
-	int size();                         //è·å–é•¿åº¦
-	bool isEmpty();                     //åˆ¤ç©º
-	bool insert(int, T);  //åœ¨æŒ‡å®šä½ç½®æ’å…¥æ–°èŠ‚ç‚¹
-	bool insert_head(T); //å¤´æ’å…¥
-	bool insert_last(T); //å°¾æ’å…¥
-	bool del(int); //æŒ‡å®šä½ç½®åˆ é™¤
-	bool del_head(); //åˆ é™¤å¤´
-	bool del_last(); //åˆ é™¤å°¾
-	LinkNode<T>* getNode(int); //è¿”å›æŒ‡å®šä½ç½®æŒ‡é’ˆ
-	LinkNode<T>* getNode_head(); //è¿”å›å¤´æŒ‡é’ˆ
-	T get(int); //è¿”å›æŒ‡å®šä½ç½®çš„å€¼
-	T get_head();//è¿”å›å¤´çš„å€¼
-	T get_last(); //è¿”å›å°¾çš„å€¼
-	void show_data();//æ‰“å°æ‰€æœ‰å€¼, 5ä¸ªä¸€æ’
+	int size();                         //»ñÈ¡³¤¶È
+	bool isEmpty();                     //ÅĞ¿Õ
+	bool insert(int, T);  //ÔÚÖ¸¶¨Î»ÖÃ²åÈëĞÂ½Úµã
+	bool insert_head(T); //Í·²åÈë
+	bool insert_last(T); //Î²²åÈë
+	bool del(int); //Ö¸¶¨Î»ÖÃÉ¾³ı
+	bool del_head(); //É¾³ıÍ·
+	bool del_last(); //É¾³ıÎ²
+	LinkNode<T>* getNode(int); //·µ»ØÖ¸¶¨Î»ÖÃÖ¸Õë
+	LinkNode<T>* getNode_head(); //·µ»ØÍ·Ö¸Õë
+	T get(int); //·µ»ØÖ¸¶¨Î»ÖÃµÄÖµ
+	T get_head();//·µ»ØÍ·µÄÖµ
+	T get_last(); //·µ»ØÎ²µÄÖµ
+	void show_data();//´òÓ¡ËùÓĞÖµ, 5¸öÒ»ÅÅ
 };
 template <typename T>
 DoubleLink<T>::DoubleLink() {
