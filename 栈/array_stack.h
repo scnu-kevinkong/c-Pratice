@@ -1,4 +1,6 @@
 #pragma once
+#ifndef _ARRAYSTACK_H
+#define _ARRAYSTACK_H
 template<typename T>
 class ArrayStack
 {
@@ -88,3 +90,4 @@ void ArrayStack<T>::show_data() {
 		}
 	}
 }
+#endif // _ARRAYSTACK_H

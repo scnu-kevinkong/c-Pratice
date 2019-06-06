@@ -1,10 +1,12 @@
 #pragma once
+#ifndef _CHAINSTACK_H
+#define _CHAINSTACK_H
 #include "single_chain.h"
 template <typename T>
 class ChainStack : public SingleLink<T> {
 public:
-	bool push(T);        //å‹æ ˆæ“ä½œ
-	T pop();            //å¼¹æ ˆæ“ä½œ
+	bool push(T);        //Ñ¹Õ»²Ù×÷
+	T pop();            //µ¯Õ»²Ù×÷
 };
 template <typename T>
 bool ChainStack<T>::push(T t) {
@@ -21,3 +23,4 @@ T ChainStack<T>::pop() {
 		return result;
 	}
 }
+#endif // _CHAINSTACK_H
