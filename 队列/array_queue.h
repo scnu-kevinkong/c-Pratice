@@ -5,7 +5,7 @@ template<typename T>
 class ArrayQueue
 {
 public:
-	ArrayQueue(int s = 10);    //默认的队列容量为10
+	ArrayQueue(int s = 50);    //默认的队列容量为10
 	~ArrayQueue();
 
 public:
@@ -55,6 +55,7 @@ bool ArrayQueue<T>::push(T t)
 {
 	if (count < capacity)    //先判断是否队列满
 	{
+		count++;
 		array[last++] = t;
 		return true;
 	}
@@ -69,7 +70,12 @@ T ArrayQueue<T>::pop()
 {
 	if (count != 0)    //先判断是否是空队列
 	{
-		return array[--count];
+		count--;
+		T temp = array[head++];
+		if (head > last) {
+			head = 0;
+		}
+		return temp;
 	}
 };
 
@@ -79,18 +85,18 @@ T ArrayQueue<T>::top()
 {
 	if (count != 0)
 	{
-		return array[0];
+		return array[head];
 	}
 };
 /*显示所有值，5个一行*/
 template <typename T>
 void ArrayQueue<T>::show_data() {
-	for (int i = count; i > 0; i--) {
-		if ((i - 1) % 5 == 0) {
-			std::cout << array[i - 1] << std::endl;
+	for (int i = head; i < last; i++) {
+		if (i % 5 == 0 && i > 0) {
+			std::cout << array[i] << std::endl;
 		}
 		else {
-			std::cout << array[i - 1] << '\t';
+			std::cout << array[i] << '\t';
 		}
 	}
 }
