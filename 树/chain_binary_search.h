@@ -52,25 +52,25 @@ bool BSTree<T>::insert(T value) {
 template <typename T>
 void BSTree<T>::pre_order(BTree<T>* node) {
 	if (node != nullptr) {
+		std::cout << node->value << ' ';
 		pre_order(node->lchild);
 		pre_order(node->rchild);
-		std::cout << node->value << ' ';
 	}
 }
 template <typename T>
 void BSTree<T>::mid_order(BTree<T>* node) {
 	if (node != nullptr) {
-		pre_order(node->lchild);
+		mid_order(node->lchild);
 		std::cout << node->value << ' ';
-		pre_order(node->rchild);
+		mid_order(node->rchild);
 	}
 }
 template <typename T>
 void BSTree<T>::last_order(BTree<T>* node) {
 	if (node != nullptr) {
+		last_order(node->lchild);
+		last_order(node->rchild);
 		std::cout << node->value << ' ';
-		pre_order(node->lchild);
-		pre_order(node->rchild);
 	}
 }
 template <typename T>
