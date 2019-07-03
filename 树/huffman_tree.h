@@ -10,6 +10,7 @@ private:
 	BTree<T>* root; //哈夫曼树头结点
 	std::deque<BTree<T>*> forest; //森林
 	void destory(BTree<T>*);
+	void calculate_huffcode(BTree<T>* &, std::string); //计算哈夫曼编码
 public:
 	HuffmanTree() {
 		root = nullptr;
@@ -23,6 +24,17 @@ public:
 	void mid_order(BTree<T>*); //中序遍历
 	void last_order(BTree<T>*); //后序遍历
 };
+template <typename T>
+void HuffmanTree<T>::calculate_huffcode(BTree<T>* &p_node, std::string code) {
+	if (p_node != nullptr) {
+		p_node->huff_code = code;
+		code += "0";
+		calculate_huffcode(p_node->lchild, code);
+		code.pop_back();
+		code += "1";
+		calculate_huffcode(p_node->rchild, code);
+	}
+}
 template <typename T>
 void HuffmanTree<T>::pre_order(BTree<T>* node) {
 	if (node != nullptr) {
@@ -67,6 +79,7 @@ void HuffmanTree<T>::init_tree(T a[], int size) {
 	}
 	root = forest.front();
 	forest.clear();
+	calculate_huffcode(root, "");
 }
 template <typename T>
 void HuffmanTree<T>::destory(BTree<T>* p_node) {
