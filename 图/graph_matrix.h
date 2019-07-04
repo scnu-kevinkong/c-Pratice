@@ -109,7 +109,6 @@ void GraphMatrix<T>::bfs(T v_from, T* & reach, T label) {
 		}
 	}
 	reach_tmp.clear();
-	reach_tmp.clear();
 }
 template <typename T>
 void GraphMatrix<T>::checkVertex(T v_from, T v_to) {
