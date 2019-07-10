@@ -13,6 +13,7 @@ private:
 	void checkVertex(T, T); //检查是否合法顶点
 	void checkVertex(T); //检查是否合法顶点
 	void r_dfs(T, T*&, T);
+	bool dfs_find_path(T, T, int&, T*&, T*&); //深度递归寻找路径;
 public:
 	~GraphTable() {
 		root.clear();
@@ -67,17 +68,71 @@ public:
 		std::fill(reach, reach + n + 1, 0);
 		r_dfs(v_from, reach, label);
 	};
+	T * find_path(T, T); //寻找合法路径;
+	bool connected(); //确定一个无向图是否连通
 };
+template <typename T>
+bool GraphTable<T>::connected() {
+	noexcept(!directed());
+	T *reach = new T[n + 1];
+	std::fill(reach, reach + n + 1, 0);
+	dfs(1, reach, 1);
+	for (int i = 1; i <= n; i++) {
+		if (reach[i] == 0)
+			return false;
+	}
+	return true;
+}
+template <typename T>
+bool GraphTable<T>::dfs_find_path(T v_from, T v_to, int & length, T*& reach, T*& path) {
+	//寻找路径的实际算法，从顶点v_from开始深度搜索
+	//source不等于终点v_to
+	reach[v_from] = 1;
+	LinkNode<T> *tmp_link = root[v_from]->getNode_head();
+	while (tmp_link->_next != nullptr) {
+		tmp_link = tmp_link->_next;
+		// 没被访问过并且是连通的，加入递归栈
+		if (reach[tmp_link->_value] != 1) {
+			path[++length] = tmp_link->_value; //路径中加入i
+			if (tmp_link->_value == v_to || dfs_find_path(tmp_link->_value, v_to, length, reach, path)) {
+				return true;
+			}
+			length--;
+		}
+	}
+	return false;
+}
+template <typename T>
+T* GraphTable<T>::find_path(T v_from, T v_to) {
+	// v_from为起点，v_to为要到达的点
+	// 最后返回一个数组path,path[0]为路径长度，path[1]开始为路径
+	// 如果不存在返回nullptr
+	checkVertex(v_from, v_to);
+	T *path = new T[n + 1];
+	path[0] = 1; //第一个点肯定能访问到
+	path[1] = v_from;
+	int length = 1;
+	T *reach = new T[n + 1];
+	std::fill(reach, reach + n + 1, 0);
+	// 搜索路径
+	if (v_from == v_to || dfs_find_path(v_from, v_to, length, reach, path)) {
+		path[0] = length - 1;
+	}
+	else {
+		delete[]path;
+		path = nullptr;
+	}
+	delete[] reach;
+	return path;
+}
 template <typename T>
 void GraphTable<T>::r_dfs(T v_from, T* & reach, T label) {
 	reach[v_from] = label;
 	LinkNode<T>* tmp_link = root[v_from]->getNode_head();
 	while (tmp_link->_next != nullptr) {
-		t
-	}
-	for (int i = 1; i <= n; i++) {
-		if (a[v_from][i] != noEdge && i != v_from && reach[i] != label) {
-			r_dfs(i, reach, label);
+		tmp_link = tmp_link->_next;
+		if (reach[tmp_link->_value] != label) {
+			r_dfs(tmp_link->_value, reach, label);
 		}
 	}
 }

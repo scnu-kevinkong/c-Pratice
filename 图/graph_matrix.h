@@ -40,6 +40,7 @@ public:
 	};
 	T * find_path(T, T); //寻找合法路径;
 	void checkVertex(T, T); //检查是否合法顶点
+	void checkVertex(T); //检查是否合法顶点
 	bool directed() {
 		return true;
 	}
@@ -134,6 +135,7 @@ T* GraphMatrix<T>::find_path(T v_from, T v_to) {
 	// v_from为起点，v_to为要到达的点
 	// 最后返回一个数组path,path[0]为路径长度，path[1]开始为路径
 	// 如果不存在返回nullptr
+	checkVertex(v_from, v_to);
 	T *path = new T[n + 1];
 	path[0] = 1; //第一个点肯定能访问到
 	path[1] = v_from;
@@ -183,6 +185,10 @@ void GraphMatrix<T>::bfs(T v_from, T* & reach, T label) {
 template <typename T>
 void GraphMatrix<T>::checkVertex(T v_from, T v_to) {
 	noexcept(v_from >= 1 && v_from <= n && v_to >= 1 && v_to <= n && v_from != v_to);
+}
+template <typename T>
+void GraphMatrix<T>::checkVertex(T v_from) {
+	noexcept(v_from >= 1 && v_from <= n);
 }
 template <typename T>
 void GraphMatrix<T>::delete_2d_array(T **&x, int rows, int cols) {
