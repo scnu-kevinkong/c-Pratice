@@ -70,7 +70,42 @@ public:
 	};
 	T * find_path(T, T); //寻找合法路径;
 	bool connected(); //确定一个无向图是否连通
+	// 拓扑排序
+	bool topologicalOrder(T *&);
+	bool directed() {
+		return true;
+	}
 };
+template <typename T>
+bool GraphTable<T>::topologicalOrder(T *& theOrder) {
+	int *in_degree = new int[n + 1];
+	theOrder = new T[n + 1];
+	std::vector<int> reach_tmp;
+	for (int i = 1; i <= n; i++) {
+		in_degree[i] = inDegree(i);
+		if (in_degree[i] == 0) {
+			reach_tmp.push_back(i);
+		}
+	}
+	int num = 0;
+	while (!reach_tmp.empty()) {
+		T vertex = reach_tmp.back();
+		reach_tmp.pop_back();
+		theOrder[num++] = vertex;
+		LinkNode<T> *tmp_link = root[vertex]->getNode_head();
+		while (tmp_link->_next != nullptr) {
+			tmp_link = tmp_link->_next;
+			in_degree[tmp_link->_value]--;
+			if (in_degree[tmp_link->_value] == 0) {
+				reach_tmp.push_back(tmp_link->_value);
+			}
+		}
+	}
+	if (num == n)
+		return true;
+	else
+		return false;
+}
 template <typename T>
 bool GraphTable<T>::connected() {
 	noexcept(!directed());

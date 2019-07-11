@@ -100,7 +100,39 @@ public:
 		}
 		return sum;
 	}
+	// 拓扑排序
+	bool topologicalOrder(T *&);
 };
+template <typename T>
+bool GraphMatrix<T>::topologicalOrder(T *&theOrder) {
+	int *in_degree = new int[n + 1];
+	theOrder = new T[n + 1];
+	std::vector<int> reach_tmp;
+	for (int i = 1; i <= n; i++) {
+		in_degree[i] = inDegree(i);
+		if (in_degree[i] == 0) {
+			reach_tmp.push_back(i);
+		}
+	}
+	int num = 0;
+	while (!reach_tmp.empty()) {
+		T vertex = reach_tmp.back();
+		reach_tmp.pop_back();
+		theOrder[num++] = vertex;
+		for (int i = 1; i <= n; i++) {
+			if (a[vertex][i] != noEdge) {
+				in_degree[i]--;
+				if (in_degree[i] == 0) {
+					reach_tmp.push_back(i);
+				}
+			}
+		}
+	}
+	if (num == n)
+		return true;
+	else
+		return false;
+}
 template <typename T>
 bool GraphMatrix<T>::connected() {
 	noexcept(!directed());
