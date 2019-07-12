@@ -102,7 +102,54 @@ public:
 	}
 	// 拓扑排序
 	bool topologicalOrder(T *&);
+	// 单源最短路径
+	void shortestPaths(T, T, T*&, T*&);
 };
+template <typename T>
+void GraphMatrix<T>::shortestPaths(T v_from, T v_to, T* &distance_from_source, T* &precesssor) {
+	// 寻找从源点v_from到点v_to的最短路径
+	// 在数组distance_from_source中返回最短路径
+	// 在数组precesssor中返回顶点
+	std::vector<T> reach_table;
+	checkVertex(v_from, v_to);
+	distance_from_source = new T[n + 1];
+	precesssor = new T[n + 1];
+	for (int i = 1; i <= n; i++) {
+		if (a[v_from][i] != noEdge) {
+			if (i == v_from) {
+				distance_from_source[i] = 0;
+				precesssor[i] = -1;
+			}
+			else {
+				distance_from_source[i] = a[v_from][i];
+				precesssor[i] = v_from;
+				reach_table.push_back(i);
+			}
+		}
+		else
+		{
+			precesssor[i] = -1;
+			distance_from_source[i] = -1;
+		}
+	}
+	while (!reach_table.empty()) {
+		T vertex = reach_table.back();
+		reach_table.pop_back();
+		for (int i = 1; i <= n; i++) {
+			if (a[vertex][i] != noEdge) {
+				if (distance_from_source[i] > distance_from_source[vertex] + a[vertex][i]) {
+					precesssor[i] = vertex;
+					distance_from_source[i] = distance_from_source[vertex] + a[vertex][i];
+					for (int j = 1; j <= n; j++) {
+						if (a[i][j] != noEdge) {
+							reach_table.push_back(j);
+						}
+					}
+				}
+			}
+		}
+	}
+}
 template <typename T>
 bool GraphMatrix<T>::topologicalOrder(T *&theOrder) {
 	int *in_degree = new int[n + 1];
