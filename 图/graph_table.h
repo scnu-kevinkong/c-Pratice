@@ -99,17 +99,17 @@ void GraphTable<T>::shortestPaths(T v_from, T v_to, T* &distance_from_source, T*
 	while (!reach_table.empty()) {
 		T vertex = reach_table.back();
 		reach_table.pop_back();
-		LinkNode<T> *tmp_link = root[vertex]->getNode_head();
+		tmp_link = root[vertex]->getNode_head();
 		while (tmp_link->_next != nullptr) {
 			tmp_link = tmp_link->_next;
 			if (distance_from_source[tmp_link->_value] > distance_from_source[vertex] + tmp_link->_weight || distance_from_source[tmp_link->_value] == -1) {
 				precesssor[tmp_link->_value] = vertex;
 				distance_from_source[tmp_link->_value] = distance_from_source[vertex] + tmp_link->_weight;
-				LinkNode<T> *point_link = root[tmp_link->_value]->getNode_head();
-				while (point_link->_next != nullptr) {
-					point_link = point_link->_next;
-					reach_table.push_back(point_link->_value);
-				}
+			}
+			LinkNode<T> *point_link = root[tmp_link->_value]->getNode_head();
+			while (point_link->_next != nullptr) {
+				point_link = point_link->_next;
+				reach_table.push_back(point_link->_value);
 			}
 		}
 	}

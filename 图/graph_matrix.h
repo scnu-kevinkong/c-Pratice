@@ -137,13 +137,13 @@ void GraphMatrix<T>::shortestPaths(T v_from, T v_to, T* &distance_from_source, T
 		reach_table.pop_back();
 		for (int i = 1; i <= n; i++) {
 			if (a[vertex][i] != noEdge) {
-				if (distance_from_source[i] > distance_from_source[vertex] + a[vertex][i]) {
+				if (distance_from_source[i] > distance_from_source[vertex] + a[vertex][i] || distance_from_source[i] == -1) {
 					precesssor[i] = vertex;
 					distance_from_source[i] = distance_from_source[vertex] + a[vertex][i];
-					for (int j = 1; j <= n; j++) {
-						if (a[i][j] != noEdge) {
-							reach_table.push_back(j);
-						}
+				}
+				for (int j = 1; j <= n; j++) {
+					if (a[i][j] != noEdge) {
+						reach_table.push_back(j);
 					}
 				}
 			}
