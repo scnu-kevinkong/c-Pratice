@@ -2,11 +2,16 @@
 #ifndef GRAPH_MATRIX_H
 #define GRAPH_MATRIX_H
 #include "graph.h"
+#include "graph_edge.h"
+#include "min_heap.h"
+#include<set>
 #include <vector>
 #include <algorithm>
 template <typename T>
 class GraphMatrix {
 private:
+	bool check_vertex_circle(std::set<T> *, T, T); //检查加入是否回路
+	void insert_edge_to_set(std::set<T> *&, T, T); //插入边到并查集
 	void make_2d_array(T **&x, int rows, int cols); //初始化二维数组
 	void delete_2d_array(T **&x, int rows, int cols); //删除二维数组
 	bool dfs_find_path(T, T, int&, T*&, T*&); //深度递归寻找路径;
@@ -16,13 +21,16 @@ protected:
 	int e;	//边的个数
 	T **a; //邻接数组
 	T noEdge; //表示不存在的边的值
+	JBMinHeap<Edge<T>> *min_heap; //连通图的顶点最小堆
 public:
+	
 	GraphMatrix(int numberOfVertices = 0, T _noEdge = 0) {
 		noexcept(numberOfVertices > 0);
 		n = numberOfVertices;
 		e = 0;
 		noEdge = _noEdge;
 		make_2d_array(a, n + 1, n + 1);
+		min_heap = new JBMinHeap<Edge<T>>(2 * n);
 		for (int i = 1; i <= n; i++) {
 			std::fill(a[i], a[i] + n + 1, noEdge);
 		}
@@ -59,6 +67,22 @@ public:
 			return false;
 		else
 			return true;
+	}
+	//无向图插入边
+	void insertEdge_double(Edge<T> theEdge) {
+		// 插入边，如果边范围出错，返回错误，如果边已存在，修改边的权值
+		T v_from = theEdge.vertex_from;
+		T v_to = theEdge.vertex_to;
+		checkVertex(v_from, v_to);
+		if (a[v_from][v_to] == noEdge) {
+			e++;
+		}
+		a[v_from][v_to] = theEdge.weight;
+		if (a[v_to][v_from] == noEdge) {
+			e++;
+		}
+		a[v_to][v_from] = theEdge.weight;
+		min_heap->add(theEdge);
 	}
 	//插入边
 	void insertEdge(Edge<T>* theEdge) {
@@ -104,7 +128,83 @@ public:
 	bool topologicalOrder(T *&);
 	// 单源最短路径
 	void shortestPaths(T, T, T*&, T*&);
+	// 最小生成树(Kruskal算法,最小堆存储边,并-查集判断环路)
+	void mintree_kruskal(Edge<T> *&);
 };
+template <typename T>
+void GraphMatrix<T>::insert_edge_to_set(std::set<T> *& reach_vertex_tmp, T v_from, T v_to) {
+	bool is_insert = false;
+	int first_null = 1;
+	for (int i = 0; i < n - 1; i++) {
+		if (!reach_vertex_tmp[i].empty()) {
+			if (reach_vertex_tmp[i].count(v_from) || reach_vertex_tmp[i].count(v_to)) {
+				reach_vertex_tmp[i].insert(v_from);
+				reach_vertex_tmp[i].insert(v_to);
+				is_insert = true;
+			}
+		}
+		else {
+			first_null = i;
+		}
+	}
+	if (!is_insert) {
+		std::set<T> temp;
+		temp.insert(v_from);
+		temp.insert(v_to);
+		reach_vertex_tmp[first_null] = temp;
+	}
+	else {
+		int complex_pos = -1;
+		for (int i = 0; i < n - 1; i++) {
+			if (!reach_vertex_tmp[i].empty()) {
+				if (reach_vertex_tmp[i].count(v_from) || reach_vertex_tmp[i].count(v_to)) {
+					if (complex_pos == -1) {
+						complex_pos = i;
+					}
+					else {
+						reach_vertex_tmp[complex_pos].insert(reach_vertex_tmp[i].begin(), reach_vertex_tmp[i].end());
+						reach_vertex_tmp[i].clear();
+					}
+				}
+			}
+		}
+	}
+}
+template <typename T>
+bool GraphMatrix<T>::check_vertex_circle(std::set<T> * reach_vertex_tmp, T v_from, T v_to) {
+	for (int i = 0; i < n - 1; i++) {
+		if (!reach_vertex_tmp[i].empty()) {
+			if (reach_vertex_tmp[i].count(v_from) && reach_vertex_tmp[i].count(v_to)) {
+				return false;
+			}
+		}
+	}
+	return true;
+}
+template <typename T>
+void GraphMatrix<T>::mintree_kruskal(Edge<T> *& path) {
+	// 在数组path中返回顶点路径
+	path = new Edge<T>[n];
+	int k = 0;
+	std::set<T>* reach_vertex = new std::set<T>[n - 1];
+	while (k < n - 1 || !min_heap->isEmpty()) {
+		Edge<T> edge = min_heap->getMinHeap();
+		min_heap->pop();
+		if (k > 0) {
+			if (check_vertex_circle(reach_vertex, edge.vertex_from, edge.vertex_to)) {
+				path[k++] = edge;
+				insert_edge_to_set(reach_vertex, edge.vertex_from, edge.vertex_to);
+			}
+		}
+		else {
+			path[k++] = edge;
+			std::set<T> temp;
+			temp.insert(edge.vertex_from);
+			temp.insert(edge.vertex_to);
+			reach_vertex[0] = temp;
+		}
+	}
+}
 template <typename T>
 void GraphMatrix<T>::shortestPaths(T v_from, T v_to, T* &distance_from_source, T* &precesssor) {
 	// 寻找从源点v_from到点v_to的最短路径
