@@ -2,6 +2,9 @@
 #ifndef GRAPH_TABLE_H
 #define GRAPH_TABLE_H
 #include "single_chain.h"
+#include "graph_edge.h"
+#include "min_heap.h"
+#include<set>
 #include <vector>
 template <typename T>
 class GraphTable : protected SingleLink<T> {
@@ -10,10 +13,13 @@ private:
 	int n; //顶点个数
 	int e;	//边的个数
 	T noEdge; //表示不存在的边的值
+	JBMinHeap<Edge<T>> *min_heap; //连通图的顶点最小堆
 	void checkVertex(T, T); //检查是否合法顶点
 	void checkVertex(T); //检查是否合法顶点
 	void r_dfs(T, T*&, T);
 	bool dfs_find_path(T, T, int&, T*&, T*&); //深度递归寻找路径;
+	bool check_vertex_circle(std::set<T> *, T, T); //检查加入是否回路
+	void insert_edge_to_set(std::set<T> *&, T, T); //插入边到并查集
 public:
 	~GraphTable() {
 		root.clear();
@@ -28,6 +34,7 @@ public:
 		n = size;
 		SingleLink<T>* tmp = new SingleLink<T>(0, nullptr, 0);
 		root.push_back(tmp);
+		min_heap = new JBMinHeap<Edge<T>>(2 * size);
 		for (int i = 0; i < size; i++) {
 			SingleLink<T>* tmp = new SingleLink<T>(a[i], nullptr, 0);
 			root.push_back(tmp);
@@ -77,7 +84,82 @@ public:
 	}
 	// 单源最短路径
 	void shortestPaths(T, T, T*&, T*&);
+	// 最小生成树(Kruskal算法,最小堆存储边,并-查集判断环路)
+	void mintree_kruskal(Edge<T> *&);
 };
+template <typename T>
+void GraphTable<T>::insert_edge_to_set(std::set<T> *& reach_vertex_tmp, T v_from, T v_to) {
+	bool is_insert = false;
+	int first_null = 1;
+	for (int i = 0; i < n - 1; i++) {
+		if (!reach_vertex_tmp[i].empty()) {
+			if (reach_vertex_tmp[i].count(v_from) || reach_vertex_tmp[i].count(v_to)) {
+				reach_vertex_tmp[i].insert(v_from);
+				reach_vertex_tmp[i].insert(v_to);
+				is_insert = true;
+			}
+		}
+		else {
+			first_null = i;
+		}
+	}
+	if (!is_insert) {
+		std::set<T> temp;
+		temp.insert(v_from);
+		temp.insert(v_to);
+		reach_vertex_tmp[first_null] = temp;
+	}
+	else {
+		int complex_pos = -1;
+		for (int i = 0; i < n - 1; i++) {
+			if (!reach_vertex_tmp[i].empty()) {
+				if (reach_vertex_tmp[i].count(v_from) || reach_vertex_tmp[i].count(v_to)) {
+					if (complex_pos == -1) {
+						complex_pos = i;
+					}
+					else {
+						reach_vertex_tmp[complex_pos].insert(reach_vertex_tmp[i].begin(), reach_vertex_tmp[i].end());
+						reach_vertex_tmp[i].clear();
+					}
+				}
+			}
+		}
+	}
+}
+template <typename T>
+bool GraphTable<T>::check_vertex_circle(std::set<T> * reach_vertex_tmp, T v_from, T v_to) {
+	for (int i = 0; i < n - 1; i++) {
+		if (!reach_vertex_tmp[i].empty()) {
+			if (reach_vertex_tmp[i].count(v_from) && reach_vertex_tmp[i].count(v_to)) {
+				return false;
+			}
+		}
+	}
+	return true;
+}
+template <typename T>
+void GraphTable<T>::mintree_kruskal(Edge<T> *& path) {
+	path = new Edge<T>[n];
+	int k = 0;
+	std::set<T>* reach_vertex = new std::set<T>[n - 1];
+	while (k < n - 1 || !min_heap->isEmpty()) {
+		Edge<T> edge = min_heap->getMinHeap();
+		min_heap->pop();
+		if (k > 0) {
+			if (check_vertex_circle(reach_vertex, edge.vertex_from, edge.vertex_to)) {
+				path[k++] = edge;
+				insert_edge_to_set(reach_vertex, edge.vertex_from, edge.vertex_to);
+			}
+		}
+		else {
+			path[k++] = edge;
+			std::set<T> temp;
+			temp.insert(edge.vertex_from);
+			temp.insert(edge.vertex_to);
+			reach_vertex[0] = temp;
+		}
+	}
+}
 template <typename T>
 void GraphTable<T>::shortestPaths(T v_from, T v_to, T* &distance_from_source, T* &precesssor) {
 	// 寻找从源点v_from到点v_to的最短路径
@@ -253,5 +335,6 @@ void GraphTable<T>::add_directioned(T v_from, T v_to, int weight) {
 	LinkNode<T>* tmp = new LinkNode<T>(v_to, nullptr, weight);
 	root[v_from]->insert_graph(tmp);
 	e++;
+	min_heap->add(Edge<T>(v_from, v_to, weight));
 }
 #endif // GRAPH_TABLE_H
