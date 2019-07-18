@@ -9,12 +9,16 @@ class LinkNode
 public:
 	T _value;
 	LinkNode* _next;
+	int _weight;
 public:
 	LinkNode() {
 		_next = nullptr;
+		_weight = 0;
 	};
 	LinkNode(T value, LinkNode * next)
-		: _value(value), _next(next) {}
+		: _value(value), _next(next), _weight(0){}
+	LinkNode(T value, LinkNode * next, int weight)
+		: _value(value), _next(next), _weight(weight){}
 };
 template <typename T>
 class SingleLink : protected LinkNode<T> {
@@ -24,12 +28,14 @@ private:
 public:
 	typedef LinkNode<T>* pointer;
 	SingleLink();
+	SingleLink(T, LinkNode<T>*, int);
 	~SingleLink();
 	int size();                         //获取长度
 	bool isEmpty();                     //判空
 	bool insert(int, T);  //在指定位置插入新节点
 	bool insert_head(T); //头插入
 	bool insert_last(T); //尾插入
+	void insert_graph(LinkNode<T>*); //图邻接表插入
 	bool del(int); //指定位置删除
 	bool del_head(); //删除头
 	bool del_last(); //删除尾
@@ -38,8 +44,41 @@ public:
 	T get(int); //返回指定位置的值
 	T get_head();//返回头的值
 	T get_last(); //返回尾的值
+	bool has_value(T); //是否含有这个值
 	void show_data();//打印所有值, 5个一排
 };
+template <typename T>
+bool SingleLink<T>::has_value(T value) {
+	LinkNode<T>* p_head = phead;
+	if (p_head->_next == nullptr) {
+		return false;
+	}
+	while (p_head->_next != nullptr) {
+		p_head = p_head->_next;
+		if (p_head->_value == value)
+			return true;
+	}
+	return false;
+}
+template <typename T>
+void SingleLink<T>::insert_graph(LinkNode<T>* node) {
+	LinkNode<T>* p_head = phead;
+	if (p_head == nullptr) {
+		phead = node;
+	}
+	else {
+		while (p_head->_next != nullptr) {
+			p_head = p_head->_next;
+		}
+		p_head->_next = node;
+	}
+	count++;
+}
+template <typename T>
+SingleLink<T>::SingleLink(T value, LinkNode<T>* next_, int weight) {
+	count = 0;
+	phead = new LinkNode<T>(value, next_, weight);
+}
 template <typename T>
 SingleLink<T>::SingleLink() {
 	count = 0;

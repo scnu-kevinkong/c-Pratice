@@ -30,6 +30,12 @@ public:
 	~JBMinHeap() {
 		delete[]_minHeap;
 	}
+	// 初始化最小堆
+	void clear_initial(int _maxSize) {
+		delete[]_minHeap;
+		_index = -1;
+		_minHeap = new T[_maxSize];
+	}
 	//获取整个最小堆的头部指针
 	T  getMinHeap() {
 		return _minHeap[0];

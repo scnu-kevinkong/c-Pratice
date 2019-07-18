@@ -20,6 +20,7 @@ private:
 	bool dfs_find_path(T, T, int&, T*&, T*&); //深度递归寻找路径;
 	bool check_vertex_circle(std::set<T> *, T, T); //检查加入是否回路
 	void insert_edge_to_set(std::set<T> *&, T, T); //插入边到并查集
+	void prim_init_minheap(T, T, std::set<T>);
 public:
 	~GraphTable() {
 		root.clear();
@@ -86,7 +87,60 @@ public:
 	void shortestPaths(T, T, T*&, T*&);
 	// 最小生成树(Kruskal算法,最小堆存储边,并-查集判断环路)
 	void mintree_kruskal(Edge<T> *&);
+	// 最小生成树(prim算法，set和dfs)
+	void mintree_prim(Edge<T> *&);
 };
+template <typename T>
+void GraphTable<T>::prim_init_minheap(T v_from ,T v_to, std::set<T> reach_vertex) {
+	min_heap->clear_initial(n * 2);
+	LinkNode<T> *tmp_link = root[v_from]->getNode_head();
+	while (tmp_link->_next != nullptr) {
+		tmp_link = tmp_link->_next;
+		if (reach_vertex.count(tmp_link->_value) == 0) {
+			min_heap->add(Edge<T>(v_from, tmp_link->_value, tmp_link->_weight));
+		}
+	}
+	tmp_link = root[v_to]->getNode_head();
+	while (tmp_link->_next != nullptr) {
+		tmp_link = tmp_link->_next;
+		if (reach_vertex.count(tmp_link->_value) == 0) {
+			min_heap->add(Edge<T>(v_to, tmp_link->_value, tmp_link->_weight));
+		}
+	}
+}
+template <typename T>
+void GraphTable<T>::mintree_prim(Edge<T> *& path) {
+	path = new Edge<T>[n];
+	int *distance_from_source;
+	T* precesssor;
+	std::set<T> reach_vertex;
+	T v_from;
+	T v_to;
+	Edge<T> edge;
+	int size = 0;
+	while (size != n - 1) {
+		if (size == 0) {
+			edge = min_heap->getMinHeap();
+			v_from = edge.vertex_from;
+			v_to = edge.vertex_to;
+			path[size++] = edge;
+			reach_vertex.insert(v_from);
+			reach_vertex.insert(v_to);
+			prim_init_minheap(v_from, v_to, reach_vertex);
+		}
+		else {
+			edge = min_heap->getMinHeap();
+			v_from = edge.vertex_from;
+			v_to = edge.vertex_to;
+			path[size++] = edge;
+			reach_vertex.insert(v_from);
+			reach_vertex.insert(v_to);
+			prim_init_minheap(v_from, v_to, reach_vertex);
+		}
+	}
+
+	std::cout<<1;
+}
 template <typename T>
 void GraphTable<T>::insert_edge_to_set(std::set<T> *& reach_vertex_tmp, T v_from, T v_to) {
 	bool is_insert = false;
@@ -165,7 +219,7 @@ void GraphTable<T>::shortestPaths(T v_from, T v_to, T* &distance_from_source, T*
 	// 寻找从源点v_from到点v_to的最短路径
 	// 在数组distance_from_source中返回最短路径
 	// 在数组precesssor中返回顶点
-	std::vector<T> reach_table;
+	std::set<T> reach_table;
 	checkVertex(v_from, v_to);
 	distance_from_source = new T[n + 1];
 	precesssor = new T[n + 1];
@@ -176,24 +230,25 @@ void GraphTable<T>::shortestPaths(T v_from, T v_to, T* &distance_from_source, T*
 		tmp_link = tmp_link->_next;
 		distance_from_source[tmp_link->_value] = tmp_link->_weight;
 		precesssor[tmp_link->_value] = v_from;
-		reach_table.push_back(tmp_link->_value);
+		reach_table.insert(tmp_link->_value);
 	}
-	while (!reach_table.empty()) {
-		T vertex = reach_table.back();
-		reach_table.pop_back();
+	typename std::set<T>::iterator iter = reach_table.begin();
+	while (iter != reach_table.end()) {
+		T vertex = *iter;
 		tmp_link = root[vertex]->getNode_head();
 		while (tmp_link->_next != nullptr) {
 			tmp_link = tmp_link->_next;
-			if (distance_from_source[tmp_link->_value] > distance_from_source[vertex] + tmp_link->_weight || distance_from_source[tmp_link->_value] == -1) {
+			if ((distance_from_source[tmp_link->_value] > distance_from_source[vertex] + tmp_link->_weight && !root[tmp_link->_value]->has_value(vertex)) || distance_from_source[tmp_link->_value] == -1) {
 				precesssor[tmp_link->_value] = vertex;
 				distance_from_source[tmp_link->_value] = distance_from_source[vertex] + tmp_link->_weight;
 			}
 			LinkNode<T> *point_link = root[tmp_link->_value]->getNode_head();
 			while (point_link->_next != nullptr) {
 				point_link = point_link->_next;
-				reach_table.push_back(point_link->_value);
+				reach_table.insert(point_link->_value);
 			}
 		}
+		iter++;
 	}
 }
 template <typename T>
@@ -328,6 +383,7 @@ void GraphTable<T>::add_no_direction(T v_from, T v_to, int weight) {
 	LinkNode<T>* tmpb = new LinkNode<T>(v_from, nullptr, weight);
 	root[v_to]->insert_graph(tmpb);
 	e++;
+	min_heap->add(Edge<T>(v_from, v_to, weight));
 }
 template <typename T>
 void GraphTable<T>::add_directioned(T v_from, T v_to, int weight) {
