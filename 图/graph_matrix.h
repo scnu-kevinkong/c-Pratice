@@ -16,6 +16,7 @@ private:
 	void delete_2d_array(T **&x, int rows, int cols); //删除二维数组
 	bool dfs_find_path(T, T, int&, T*&, T*&); //深度递归寻找路径;
 	void r_dfs(T, T*&, T);
+	void prim_init_minheap(T, T, std::set<T>);
 protected:
 	int n; //顶点个数
 	int e;	//边的个数
@@ -30,7 +31,7 @@ public:
 		e = 0;
 		noEdge = _noEdge;
 		make_2d_array(a, n + 1, n + 1);
-		min_heap = new JBMinHeap<Edge<T>>(2 * n);
+		min_heap = new JBMinHeap<Edge<T>>((n - 1) * n);
 		for (int i = 1; i <= n; i++) {
 			std::fill(a[i], a[i] + n + 1, noEdge);
 		}
@@ -83,6 +84,7 @@ public:
 		}
 		a[v_to][v_from] = theEdge.weight;
 		min_heap->add(theEdge);
+		min_heap->add(Edge<T>(v_to, v_from, theEdge.weight));
 	}
 	//插入边
 	void insertEdge(Edge<T>* theEdge) {
@@ -130,7 +132,58 @@ public:
 	void shortestPaths(T, T, T*&, T*&);
 	// 最小生成树(Kruskal算法,最小堆存储边,并-查集判断环路)
 	void mintree_kruskal(Edge<T> *&);
+	// 最小生成树(prim算法，set和dfs)
+	void mintree_prim(Edge<T> *&);
 };
+template <typename T>
+void GraphMatrix<T>::prim_init_minheap(T v_from, T v_to, std::set<T> reach_vertex) {
+	min_heap->clear_initial(n * (n - 1));
+	for (int i = 1; i <= n; i++) {
+		if (a[v_from][i] != noEdge) {
+			if (reach_vertex.count(i) == 0) {
+				min_heap->add(Edge<T>(v_from, i, a[v_from][i]));
+			}
+		}
+		else if (a[v_to][i] != noEdge) {
+			if (reach_vertex.count(i) == 0) {
+				min_heap->add(Edge<T>(v_to, i, a[v_to][i]));
+			}
+		}
+	}
+}
+template <typename T>
+void GraphMatrix<T>::mintree_prim(Edge<T> *& path) {
+	path = new Edge<T>[n];
+	int *distance_from_source;
+	T* precesssor;
+	std::set<T> reach_vertex;
+	T v_from;
+	T v_to;
+	Edge<T> edge;
+	int size = 0;
+	while (size != n - 1) {
+		if (size == 0) {
+			edge = min_heap->getMinHeap();
+			v_from = edge.vertex_from;
+			v_to = edge.vertex_to;
+			path[size++] = edge;
+			reach_vertex.insert(v_from);
+			reach_vertex.insert(v_to);
+			prim_init_minheap(v_from, v_to, reach_vertex);
+		}
+		else {
+			edge = min_heap->getMinHeap();
+			v_from = edge.vertex_from;
+			v_to = edge.vertex_to;
+			path[size++] = edge;
+			reach_vertex.insert(v_from);
+			reach_vertex.insert(v_to);
+			prim_init_minheap(v_from, v_to, reach_vertex);
+		}
+	}
+
+	std::cout << 1;
+}
 template <typename T>
 void GraphMatrix<T>::insert_edge_to_set(std::set<T> *& reach_vertex_tmp, T v_from, T v_to) {
 	bool is_insert = false;
