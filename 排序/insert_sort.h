@@ -124,4 +124,38 @@ void insert_sort_shift(T *arr, int size) {
 	swap_array(arr, temp, size);
 	delete[]temp;
 }
+// 从小到大,希尔排序
+template <typename T>
+void shell_insort(T *arr, int size) {
+	if (size > 1) {
+		for (int gap = size / 2; gap > 0; gap /= 2) {
+			for (int index = gap; index < size; index++) {
+				T insert_value = arr[index];
+				int i = index;
+				while (i >= gap && insert_value < arr[i - gap]) {
+					arr[i] = arr[i - gap];
+					i -= gap;
+				}
+				arr[i] = insert_value;
+			}
+		}
+	}
+}
+// 从大到小,希尔排序
+template <typename T>
+void shell_insort_shift(T *arr, int size) {
+	if (size > 1) {
+		for (int gap = size / 2; gap > 0; gap /= 2) {
+			for (int index = gap; index < size; index++) {
+				T insert_value = arr[index];
+				int i = index;
+				while (i >= gap && insert_value > arr[i - gap]) {
+					arr[i] = arr[i - gap];
+					i -= gap;
+				}
+				arr[i] = insert_value;
+			}
+		}
+	}
+}
 #endif // INSERT_SORT_H
