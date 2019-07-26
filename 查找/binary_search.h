@@ -1,7 +1,6 @@
 #pragma once
 #ifndef BINARY_SEARCH_H
 #define BINARY_SEARCH_H
-#include "graph_edge.h"
 // 递归
 template <typename T>
 int half_find_recursion(T data[], int left, int right, T target) {
